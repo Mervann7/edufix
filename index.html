@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edufix – Sistem Bakımda</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:    #E24B4A;
+      --red-dk: #a32d2d;
+      --bg:     #0b1120;
+      --bg2:    #111827;
+      --bg3:    #1a2535;
+      --line:   #1f2d45;
+      --muted:  #4a5a78;
+      --soft:   #8b9cbf;
+      --white:  #f0f4ff;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Barlow', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── grid lines ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem 2rem;
+    }
+
+    /* ── LOGO ── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 1.4rem;
+      animation: fadeDown .6s ease both;
+    }
+    .logo-edu {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 54px;
+      font-weight: 800;
+      color: var(--red);
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+    .logo-fix {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 54px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -1px;
+      line-height: 1;
+      position: relative;
+    }
+    .logo-fix::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      right: -4px;
+      width: 10px;
+      height: 10px;
+      background: var(--red);
+      border-radius: 2px;
+    }
+
+    /* ── STATUS BADGE ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(226,75,74,.12);
+      border: 1px solid rgba(226,75,74,.35);
+      color: var(--red);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      padding: 5px 14px;
+      border-radius: 4px;
+      margin-bottom: 2rem;
+      animation: fadeDown .7s .1s ease both;
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse 1.4s infinite;
+    }
+
+    /* ── SCENE (SVG machines) ── */
+    .scene {
+      width: 100%;
+      max-width: 760px;
+      height: 200px;
+      position: relative;
+      margin-bottom: 2.5rem;
+      animation: fadeDown .7s .15s ease both;
+    }
+    .scene svg { width: 100%; height: 100%; }
+
+    /* ── HEADING ── */
+    h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(32px, 6vw, 52px);
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.1;
+      letter-spacing: -.5px;
+      margin-bottom: .75rem;
+      animation: fadeDown .7s .2s ease both;
+    }
+    h1 span { color: var(--red); }
+
+    .sub {
+      font-size: 16px;
+      color: var(--soft);
+      text-align: center;
+      max-width: 480px;
+      line-height: 1.7;
+      margin-bottom: 2.2rem;
+      animation: fadeDown .7s .25s ease both;
+    }
+
+    /* ── PROGRESS ── */
+    .progress-area {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 2.2rem;
+      animation: fadeDown .7s .3s ease both;
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: .4px;
+    }
+    .progress-track {
+      height: 5px;
+      background: var(--line);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 72%;
+      background: var(--red);
+      border-radius: 3px;
+      position: relative;
+      animation: growBar 1.6s .8s cubic-bezier(.22,1,.36,1) both;
+      transform-origin: left;
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 30px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.25));
+      animation: shimmer 1.8s 2.4s infinite;
+    }
+
+    /* ── INFO CARDS ── */
+    .cards {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeDown .7s .35s ease both;
+    }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: .85rem 1.3rem;
+      text-align: center;
+      min-width: 120px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover {
+      border-color: rgba(226,75,74,.4);
+      transform: translateY(-2px);
+    }
+    .card-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    .card-val {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    /* ── COUNTDOWN ── */
+    .countdown-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 2.5rem;
+      animation: fadeDown .7s .4s ease both;
+    }
+    .countdown-unit { text-align: center; }
+    .countdown-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 40px;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+      display: block;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 14px;
+      min-width: 64px;
+    }
+    .countdown-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      margin-top: 5px;
+      display: block;
+      text-transform: uppercase;
+    }
+    .countdown-sep {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--red);
+      align-self: center;
+      padding-bottom: 20px;
+      animation: pulse 1s infinite;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: .3px;
+      animation: fadeDown .7s .45s ease both;
+    }
+    .footer a { color: var(--soft); text-decoration: none; }
+    .footer a:hover { color: var(--red); }
+
+    /* ── MACHINES ANIMATION ── */
+    @keyframes digArm {
+      0%, 100% { transform: rotate(0deg); }
+      50%       { transform: rotate(-20deg); }
+    }
+    @keyframes pendulum {
+      0%, 100% { transform: rotate(-14deg); }
+      50%       { transform: rotate(14deg); }
+    }
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-7px); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: .6; }
+      50%       { opacity: 1; }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes growBar {
+      from { transform: scaleX(0); }
+      to   { transform: scaleX(1); }
+    }
+    @keyframes shimmer {
+      0%   { opacity: 0; transform: translateX(-30px); }
+      50%  { opacity: 1; }
+      100% { opacity: 0; transform: translateX(30px); }
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes blinkLight {
+      0%, 100% { fill: #E24B4A; opacity: .9; }
+      50%       { fill: #ffaaaa; opacity: .5; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .logo-edu, .logo-fix { font-size: 42px; }
+      .countdown-num { font-size: 30px; min-width: 52px; padding: 6px 10px; }
+      .cards { gap: 8px; }
+      .card { min-width: 95px; padding: .7rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- LOGO -->
+  <div class="logo">
+    <span class="logo-edu">edu</span><span class="logo-fix">fix</span>
+  </div>
+
+  <!-- BADGE -->
+  <div class="badge">
+    <span class="badge-dot"></span>
+    SİSTEM BAKIMDA
+  </div>
+
+  <!-- MACHINES SCENE -->
+  <div class="scene">
+    <svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+
+      <!-- ground -->
+      <rect x="0" y="188" width="760" height="12" rx="3" fill="#1a2535"/>
+      <rect x="0"   y="188" width="70"  height="4" rx="2" fill="#E24B4A" opacity=".4"/>
+      <rect x="140" y="188" width="90"  height="4" rx="2" fill="#E24B4A" opacity=".4"/>
+      <rect x="340" y="188" width="130" height="4" rx="2" fill="#E24B4A" opacity=".4"/>
+      <rect x="600" y="188" width="160" height="4" rx="2" fill="#E24B4A" opacity=".4"/>
+
+      <!-- ── EXCAVATOR (left) ── -->
+      <g transform="translate(50,188) scale(1,-1)">
+        <!-- tracks -->
+        <rect x="0"  y="0"  width="16" height="12" rx="2" fill="#152a43"/>
+        <rect x="60" y="0"  width="16" height="12" rx="2" fill="#152a43"/>
+        <circle cx="8"  cy="12" r="9" fill="#0d1a2e" stroke="#2a4a6e" stroke-width="2.5"/>
+        <circle cx="8"  cy="12" r="3" fill="#2a4a6e"/>
+        <circle cx="68" cy="12" r="9" fill="#0d1a2e" stroke="#2a4a6e" stroke-width="2.5"/>
+        <circle cx="68" cy="12" r="3" fill="#2a4a6e"/>
+        <!-- body -->
+        <rect x="4"  y="12" width="68" height="22" rx="3" fill="#1f3a5c"/>
+        <!-- cab -->
+        <rect x="12" y="22" width="30" height="18" rx="2" fill="#0f2540"/>
+        <rect x="14" y="24" width="14" height="10" rx="1" fill="#1a3a5e" opacity=".85"/>
+        <rect x="30" y="25" width="8"  height="8"  rx="1" fill="#1a3a5e" opacity=".55"/>
+        <!-- warning light -->
+        <circle cx="38" cy="42" r="4" style="animation:blinkLight 1.4s infinite"/>
+        <!-- arm group -->
+        <g style="transform-origin:72px 34px; animation:digArm 2.6s ease-in-out infinite">
+          <rect x="58" y="28" width="40" height="8" rx="4" fill="#2563a8" transform="rotate(-18,58,32)"/>
+          <rect x="88" y="16" width="32" height="7" rx="3" fill="#1a4a8e" transform="rotate(28,88,20)"/>
+          <!-- bucket -->
+          <polygon points="108,9 124,4 128,18 112,22" fill="#E24B4A" opacity=".9"/>
+          <line x1="112" y1="18" x2="124" y2="6" stroke="#fff" stroke-width=".8" opacity=".3"/>
+        </g>
+      </g>
+
+      <!-- ── DUMP TRUCK (center-left) ── -->
+      <g transform="translate(240,188) scale(1,-1)">
+        <!-- wheels -->
+        <circle cx="18"  cy="14" r="12" fill="#0d1a2e" stroke="#2a4a6e" stroke-width="2"/>
+        <circle cx="18"  cy="14" r="4"  fill="#2a4a6e"/>
+        <circle cx="82"  cy="14" r="12" fill="#0d1a2e" stroke="#2a4a6e" stroke-width="2"/>
+        <circle cx="82"  cy="14" r="4"  fill="#2a4a6e"/>
+        <!-- body lower -->
+        <rect x="6"  y="14" width="90" height="18" rx="2" fill="#1f3a5c"/>
+        <!-- bed (tilted slightly) -->
+        <polygon points="10,32 90,32 84,58 4,58" fill="#152a43"/>
+        <line x1="25" y1="32" x2="22" y2="58" stroke="#0d1a2e" stroke-width="1" opacity=".4"/>
+        <line x1="50" y1="32" x2="47" y2="58" stroke="#0d1a2e" stroke-width="1" opacity=".4"/>
+        <line x1="72" y1="32" x2="70" y2="58" stroke="#0d1a2e" stroke-width="1" opacity=".4"/>
+        <!-- cab -->
+        <rect x="62" y="32" width="34" height="28" rx="3" fill="#0f2540"/>
+        <rect x="64" y="34" width="16" height="14" rx="1" fill="#1a3a5e" opacity=".8"/>
+        <rect x="82" y="36" width="10" height="10" rx="1" fill="#1a3a5e" opacity=".55"/>
+        <!-- headlights -->
+        <rect x="93" y="14" width="5" height="6" rx="1" fill="#ffd080" opacity=".7"/>
+        <circle cx="96" cy="34" r="3" style="animation:blinkLight 1.9s infinite"/>
+      </g>
+
+      <!-- ── TOWER CRANE (right) ── -->
+      <g transform="translate(550,188) scale(1,-1)">
+        <!-- base -->
+        <rect x="22" y="0"  width="14" height="10" rx="1" fill="#152540"/>
+        <rect x="0"  y="0"  width="58" height="8"  rx="2" fill="#0f2540"/>
+        <!-- mast -->
+        <rect x="26" y="8"  width="6"  height="150" rx="2" fill="#1a2e4a"/>
+        <!-- cross beam -->
+        <rect x="4"  y="148" width="100" height="6" rx="2" fill="#152a43"/>
+        <!-- counter weight -->
+        <rect x="2"  y="142" width="18"  height="14" rx="2" fill="#0f2540"/>
+        <!-- trolley + rope + hook -->
+        <g style="transform-origin:80px 154px; animation:pendulum 3.2s ease-in-out infinite">
+          <rect x="72" y="148" width="12" height="8" rx="2" fill="#1a2e4a"/>
+          <line x1="78" y1="156" x2="78" y2="115" stroke="#2a4a6e" stroke-width="1.5"/>
+          <!-- hook block -->
+          <rect x="70" y="112" width="16" height="20" rx="2" fill="#E24B4A" opacity=".88"/>
+          <line x1="74" y1="112" x2="74" y2="132" stroke="#fff" stroke-width=".6" opacity=".2"/>
+        </g>
+        <!-- warning light on top -->
+        <circle cx="29" cy="158" r="5" style="animation:blinkLight 1.2s infinite"/>
+        <!-- cab on mast -->
+        <rect x="14" y="108" width="30" height="20" rx="2" fill="#0f2540"/>
+        <rect x="16" y="110" width="12" height="10" rx="1" fill="#1a3a5e" opacity=".75"/>
+      </g>
+
+      <!-- ── MINI COMPACTOR (far right) ── -->
+      <g transform="translate(690,188) scale(1,-1)">
+        <rect x="0"  y="0"  width="52" height="12" rx="6" fill="#152a43"/>
+        <rect x="8"  y="12" width="36" height="20" rx="2" fill="#1f3a5c"/>
+        <rect x="12" y="20" width="18" height="14" rx="2" fill="#0f2540"/>
+        <rect x="14" y="22" width="10" height="8"  rx="1" fill="#1a3a5e" opacity=".8"/>
+        <rect x="32" y="14" width="8"  height="20" rx="1" fill="#152a43"/>
+        <rect x="30" y="32" width="12" height="8"  rx="1" fill="#1a4070"/>
+        <circle cx="26" cy="34" r="3" style="animation:blinkLight 1.6s infinite"/>
+      </g>
+
+      <!-- ── floating mini crane (top center) ── -->
+      <g style="animation:floatY 4s ease-in-out infinite">
+        <g transform="translate(360,20)">
+          <rect x="14" y="0"  width="4"  height="65" rx="1.5" fill="#1a2e4a" opacity=".7"/>
+          <rect x="2"  y="58" width="46" height="4"  rx="1.5" fill="#152a43" opacity=".7"/>
+          <rect x="2"  y="52" width="10" height="10" rx="1"   fill="#0f2540" opacity=".7"/>
+          <line x1="16" y1="62" x2="36" y2="62" stroke="#2a4a6e" stroke-width="1" opacity=".5"/>
+          <line x1="36" y1="62" x2="36" y2="75" stroke="#2a4a6e" stroke-width="1" opacity=".5"/>
+          <rect x="30" y="72" width="12" height="9"  rx="1"   fill="#E24B4A" opacity=".6"/>
+        </g>
+      </g>
+
+      <!-- ambient dust clouds -->
+      <ellipse cx="115" cy="182" rx="28" ry="7" fill="#8b9cbf" opacity=".07"/>
+      <ellipse cx="230" cy="183" rx="18" ry="5" fill="#8b9cbf" opacity=".06"/>
+      <ellipse cx="480" cy="182" rx="24" ry="6" fill="#8b9cbf" opacity=".07"/>
+
+      <!-- corner indicator lights -->
+      <circle cx="700" cy="22" r="3" fill="#E24B4A" opacity=".35" style="animation:pulse 1.8s infinite"/>
+      <circle cx="718" cy="40" r="2" fill="#8b9cbf" opacity=".28" style="animation:pulse 2.3s infinite"/>
+      <circle cx="42"  cy="50" r="2.5" fill="#E24B4A" opacity=".3" style="animation:pulse 1.6s infinite"/>
+    </svg>
+  </div>
+
+  <!-- HEADING -->
+  <h1>Kısa Süreliğine Durduk,<br><span>Daha İyi Döneceğiz</span></h1>
+
+  <p class="sub">
+    İş Makinesi ve Ekipman Verimlilik Sistemimizi güncelliyoruz.
+    Çalışma saati takibi, yakıt yönetimi ve bakım modülleri
+    kısa süre içinde yeniden hizmetinizde olacak.
+  </p>
+
+  <!-- PROGRESS -->
+  <div class="progress-area">
+    <div class="progress-labels">
+      <span>GÜNCELLEME İLERLEMESİ</span>
+      <span id="pct">72%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- INFO CARDS -->
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Tahmini Süre</div>
+      <div class="card-val">~2 Saat</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Başlangıç</div>
+      <div class="card-val" id="start-time">02:00</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Versiyon</div>
+      <div class="card-val">v2.1.0</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Durum</div>
+      <div class="card-val" style="color:var(--red)">Aktif</div>
+    </div>
+  </div>
+
+  <!-- COUNTDOWN -->
+  <div class="countdown-row">
+    <div class="countdown-unit">
+      <span class="countdown-num" id="cd-h">01</span>
+      <span class="countdown-label">Saat</span>
+    </div>
+    <span class="countdown-sep">:</span>
+    <div class="countdown-unit">
+      <span class="countdown-num" id="cd-m">47</span>
+      <span class="countdown-label">Dakika</span>
+    </div>
+    <span class="countdown-sep">:</span>
+    <div class="countdown-unit">
+      <span class="countdown-num" id="cd-s">30</span>
+      <span class="countdown-label">Saniye</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    &copy; 2026 Edufix &nbsp;·&nbsp;
+    <a href="mailto:destek@edufix.com">destek@edufix.com</a>
+    &nbsp;·&nbsp; Anlık durum için sayfayı yenileyin
+  </div>
+
+</div>
+
+<script>
+  // ── Countdown: 1h 47m 30s from page load ──
+  let total = 1 * 3600 + 47 * 60 + 30;
+
+  function pad(n) { return String(n).padStart(2,'0'); }
+
+  function tick() {
+    if (total <= 0) {
+      document.getElementById('cd-h').textContent = '00';
+      document.getElementById('cd-m').textContent = '00';
+      document.getElementById('cd-s').textContent = '00';
+      return;
+    }
+    total--;
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    document.getElementById('cd-h').textContent = pad(h);
+    document.getElementById('cd-m').textContent = pad(m);
+    document.getElementById('cd-s').textContent = pad(s);
+  }
+
+  setInterval(tick, 1000);
+
+  // ── Show real start time ──
+  const now = new Date();
+  now.setHours(now.getHours() - 1);
+  document.getElementById('start-time').textContent =
+    pad(now.getHours()) + ':' + pad(now.getMinutes());
+</script>
+</body>
+</html>
