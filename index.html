@@ -1,572 +1,772 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edufix – Sistem Bakımda</title>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduFix – İş Makinesi Verimlilik Sistemi</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#E03333;--red-lt:#ff5a5a;--red-dim:rgba(224,51,51,.12);
+  --bg:#F4F5F7;--surface:#FFFFFF;--surface2:#F8F9FB;
+  --border:#E8EAED;--border2:#D0D3DA;
+  --text:#111827;--text2:#4B5563;--text3:#9CA3AF;
+  --sidebar:#1C1F2E;--sidebar-active:#2A2E42;
+  --green:#16A34A;--orange:#EA580C;--blue:#2563EB;--purple:#7C3AED;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 16px rgba(0,0,0,.10);
+  --radius:10px;--radius-sm:6px;
+  font-family:'DM Sans',sans-serif;
+}
 
-    :root {
-      --red:    #E24B4A;
-      --red-dk: #a32d2d;
-      --bg:     #0b1120;
-      --bg2:    #111827;
-      --bg3:    #1a2535;
-      --line:   #1f2d45;
-      --muted:  #4a5a78;
-      --soft:   #8b9cbf;
-      --white:  #f0f4ff;
-    }
+body{background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 
-    html, body {
-      min-height: 100%;
-      background: var(--bg);
-      color: var(--white);
-      font-family: 'Barlow', sans-serif;
-      overflow-x: hidden;
-    }
+/* ── SIDEBAR ── */
+.sidebar{
+  width:220px;min-height:100vh;background:var(--sidebar);
+  display:flex;flex-direction:column;flex-shrink:0;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sidebar-logo{
+  padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.07);
+}
+.logo-text{display:flex;align-items:center;gap:0;line-height:1}
+.logo-edu{font-size:26px;font-weight:700;color:var(--red);letter-spacing:-.5px}
+.logo-fix{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.5px;position:relative}
+.logo-fix::after{content:'';position:absolute;top:3px;right:-4px;width:7px;height:7px;background:var(--red);border-radius:2px}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.6px;margin-top:4px;font-weight:400}
 
-    /* ── noise overlay ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.025;
-      pointer-events: none;
-      z-index: 0;
-    }
+.sidebar-nav{flex:1;padding:16px 0}
+.nav-group-label{
+  font-size:9px;color:rgba(255,255,255,.28);letter-spacing:1.2px;font-weight:600;
+  padding:12px 20px 6px;text-transform:uppercase;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 20px;cursor:pointer;border-radius:0;
+  color:rgba(255,255,255,.5);font-size:13.5px;font-weight:500;
+  transition:all .15s;position:relative;
+}
+.nav-item:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.85)}
+.nav-item.active{background:var(--red);color:#fff}
+.nav-item.active::before{content:'';position:absolute;right:0;top:0;bottom:0;width:3px;background:#fff;border-radius:2px 0 0 2px}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:.8}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:600;border-radius:10px;padding:1px 6px;min-width:18px;text-align:center}
+.nav-item.active .nav-badge{background:rgba(255,255,255,.25)}
 
-    /* ── grid lines ── */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none;
-      z-index: 0;
-    }
+.sidebar-footer{
+  padding:16px 20px;border-top:1px solid rgba(255,255,255,.07);
+}
+.user-row{display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:8px;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:12.5px;font-weight:600;color:#fff}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
 
-    .wrap {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 3rem 1.5rem 2rem;
-    }
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
 
-    /* ── LOGO ── */
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      margin-bottom: 1.4rem;
-      animation: fadeDown .6s ease both;
-    }
-    .logo-edu {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 54px;
-      font-weight: 800;
-      color: var(--red);
-      letter-spacing: -1px;
-      line-height: 1;
-    }
-    .logo-fix {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 54px;
-      font-weight: 800;
-      color: var(--white);
-      letter-spacing: -1px;
-      line-height: 1;
-      position: relative;
-    }
-    .logo-fix::after {
-      content: '';
-      position: absolute;
-      top: 6px;
-      right: -4px;
-      width: 10px;
-      height: 10px;
-      background: var(--red);
-      border-radius: 2px;
-    }
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:10;
+}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.page-title{font-size:16px;font-weight:600;color:var(--text)}
+.breadcrumb{font-size:12px;color:var(--text3)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;
+  border:1px solid var(--border);background:var(--surface);color:var(--text2);
+  cursor:pointer;transition:all .15s;font-family:inherit;
+}
+.btn:hover{border-color:var(--border2);background:var(--surface2)}
+.btn-primary{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-primary:hover{background:#c92a2a;border-color:#c92a2a}
+.btn svg{width:14px;height:14px}
+.notif-btn{position:relative;width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2)}
+.notif-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid var(--surface)}
 
-    /* ── STATUS BADGE ── */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: rgba(226,75,74,.12);
-      border: 1px solid rgba(226,75,74,.35);
-      color: var(--red);
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      padding: 5px 14px;
-      border-radius: 4px;
-      margin-bottom: 2rem;
-      animation: fadeDown .7s .1s ease both;
-    }
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--red);
-      animation: pulse 1.4s infinite;
-    }
+/* ── CONTENT ── */
+.content{flex:1;padding:24px 28px;overflow-y:auto}
 
-    /* ── SCENE (SVG machines) ── */
-    .scene {
-      width: 100%;
-      max-width: 760px;
-      height: 200px;
-      position: relative;
-      margin-bottom: 2.5rem;
-      animation: fadeDown .7s .15s ease both;
-    }
-    .scene svg { width: 100%; height: 100%; }
+/* PAGE SECTIONS */
+.page{display:none}
+.page.active{display:block}
 
-    /* ── HEADING ── */
-    h1 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: clamp(32px, 6vw, 52px);
-      font-weight: 800;
-      text-align: center;
-      line-height: 1.1;
-      letter-spacing: -.5px;
-      margin-bottom: .75rem;
-      animation: fadeDown .7s .2s ease both;
-    }
-    h1 span { color: var(--red); }
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+  box-shadow:var(--shadow);transition:box-shadow .2s;
+}
+.kpi-card:hover{box-shadow:var(--shadow-md)}
+.kpi-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.kpi-label{font-size:12px;color:var(--text3);font-weight:500;letter-spacing:.2px}
+.kpi-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.kpi-icon svg{width:18px;height:18px}
+.kpi-value{font-size:28px;font-weight:700;color:var(--text);line-height:1;margin-bottom:6px;font-family:'DM Mono',monospace}
+.kpi-sub{font-size:12px;color:var(--text3)}
+.kpi-sub span{font-weight:600}
+.kpi-sub .up{color:var(--green)}.kpi-sub .down{color:var(--red)}
+.kpi-chart-bar{margin-top:10px;height:3px;background:var(--bg);border-radius:2px;overflow:hidden}
+.kpi-chart-fill{height:100%;border-radius:2px;transition:width .8s ease}
 
-    .sub {
-      font-size: 16px;
-      color: var(--soft);
-      text-align: center;
-      max-width: 480px;
-      line-height: 1.7;
-      margin-bottom: 2.2rem;
-      animation: fadeDown .7s .25s ease both;
-    }
+/* ── SECTION HEADER ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:14px;font-weight:600;color:var(--text)}
+.section-actions{display:flex;gap:8px}
 
-    /* ── PROGRESS ── */
-    .progress-area {
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 2.2rem;
-      animation: fadeDown .7s .3s ease both;
-    }
-    .progress-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      letter-spacing: .4px;
-    }
-    .progress-track {
-      height: 5px;
-      background: var(--line);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      width: 72%;
-      background: var(--red);
-      border-radius: 3px;
-      position: relative;
-      animation: growBar 1.6s .8s cubic-bezier(.22,1,.36,1) both;
-      transform-origin: left;
-    }
-    .progress-fill::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 0;
-      height: 100%;
-      width: 30px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.25));
-      animation: shimmer 1.8s 2.4s infinite;
-    }
+/* ── TABLE ── */
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+.table-toolbar{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.search-input{
+  flex:1;max-width:280px;height:34px;border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:0 12px 0 32px;font-size:13px;background:var(--surface2);color:var(--text);
+  font-family:inherit;outline:none;transition:border-color .15s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:9px center;background-size:15px;
+}
+.search-input:focus{border-color:var(--red);background-color:var(--surface)}
+.filter-select{height:34px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 10px;font-size:13px;background:var(--surface2);color:var(--text2);font-family:inherit;outline:none;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--surface2);border-bottom:1px solid var(--border)}
+th{padding:10px 16px;font-size:11px;font-weight:600;color:var(--text3);text-align:left;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+td{padding:12px 16px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background .1s}
+tbody tr:hover{background:var(--surface2)}
+.td-bold{font-weight:600;color:var(--text)}
+.td-mono{font-family:'DM Mono',monospace;font-size:12px}
 
-    /* ── INFO CARDS ── */
-    .cards {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 2.5rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      animation: fadeDown .7s .35s ease both;
-    }
-    .card {
-      background: var(--bg2);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: .85rem 1.3rem;
-      text-align: center;
-      min-width: 120px;
-      transition: border-color .2s, transform .2s;
-    }
-    .card:hover {
-      border-color: rgba(226,75,74,.4);
-      transform: translateY(-2px);
-    }
-    .card-label {
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      font-weight: 600;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-    }
-    .card-val {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--white);
-    }
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.badge-green{background:#DCFCE7;color:#15803D}.badge-green::before{background:#16A34A}
+.badge-red{background:#FEE2E2;color:#B91C1C}.badge-red::before{background:var(--red)}
+.badge-orange{background:#FEF3C7;color:#B45309}.badge-orange::before{background:var(--orange)}
+.badge-blue{background:#DBEAFE;color:#1D4ED8}.badge-blue::before{background:var(--blue)}
+.badge-purple{background:#EDE9FE;color:#6D28D9}.badge-purple::before{background:var(--purple)}
 
-    /* ── COUNTDOWN ── */
-    .countdown-row {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 2.5rem;
-      animation: fadeDown .7s .4s ease both;
-    }
-    .countdown-unit { text-align: center; }
-    .countdown-num {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 40px;
-      font-weight: 800;
-      color: var(--white);
-      line-height: 1;
-      display: block;
-      background: var(--bg2);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 8px 14px;
-      min-width: 64px;
-    }
-    .countdown-label {
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      margin-top: 5px;
-      display: block;
-      text-transform: uppercase;
-    }
-    .countdown-sep {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 36px;
-      font-weight: 700;
-      color: var(--red);
-      align-self: center;
-      padding-bottom: 20px;
-      animation: pulse 1s infinite;
-    }
+/* ── ROW ACTIONS ── */
+.row-actions{display:flex;gap:4px}
+.action-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.action-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+.action-btn svg{width:13px;height:13px}
 
-    /* ── FOOTER ── */
-    .footer {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-      letter-spacing: .3px;
-      animation: fadeDown .7s .45s ease both;
-    }
-    .footer a { color: var(--soft); text-decoration: none; }
-    .footer a:hover { color: var(--red); }
+/* ── GRID 2-col ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
 
-    /* ── MACHINES ANIMATION ── */
-    @keyframes digArm {
-      0%, 100% { transform: rotate(0deg); }
-      50%       { transform: rotate(-20deg); }
-    }
-    @keyframes pendulum {
-      0%, 100% { transform: rotate(-14deg); }
-      50%       { transform: rotate(14deg); }
-    }
-    @keyframes floatY {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-7px); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: .6; }
-      50%       { opacity: 1; }
-    }
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes growBar {
-      from { transform: scaleX(0); }
-      to   { transform: scaleX(1); }
-    }
-    @keyframes shimmer {
-      0%   { opacity: 0; transform: translateX(-30px); }
-      50%  { opacity: 1; }
-      100% { opacity: 0; transform: translateX(30px); }
-    }
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
-    }
-    @keyframes blinkLight {
-      0%, 100% { fill: #E24B4A; opacity: .9; }
-      50%       { fill: #ffaaaa; opacity: .5; }
-    }
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13.5px;font-weight:600;color:var(--text)}
+.card-body{padding:18px}
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 480px) {
-      .logo-edu, .logo-fix { font-size: 42px; }
-      .countdown-num { font-size: 30px; min-width: 52px; padding: 6px 10px; }
-      .cards { gap: 8px; }
-      .card { min-width: 95px; padding: .7rem 1rem; }
-    }
-  </style>
+/* ── TIMELINE ── */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);position:relative}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.tl-dot svg{width:14px;height:14px}
+.tl-content{flex:1;min-width:0}
+.tl-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.tl-desc{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-time{font-size:11px;color:var(--text3);white-space:nowrap;margin-top:2px;font-family:'DM Mono',monospace}
+
+/* ── PROGRESS BAR ── */
+.prog-row{margin-bottom:14px}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.prog-label{font-size:12.5px;font-weight:500;color:var(--text2)}
+.prog-val{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
+.prog-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width 1s ease}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:15px;font-weight:700;color:var(--text)}
+.modal-close{width:28px;height:28px;border-radius:6px;border:none;background:var(--surface2);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
+.modal-body{padding:22px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.2px}
+.form-input,.form-select{height:36px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;background:var(--surface2);transition:border-color .15s}
+.form-input:focus,.form-select:focus{border-color:var(--red);background:var(--surface)}
+textarea.form-input{height:80px;padding:10px 12px;resize:vertical}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* ── CHART AREA ── */
+.chart-placeholder{height:160px;background:var(--surface2);border-radius:var(--radius-sm);display:flex;align-items:flex-end;gap:6px;padding:16px 12px 8px;overflow:hidden}
+.bar{flex:1;border-radius:4px 4px 0 0;transition:height .6s ease,background .2s;cursor:pointer}
+.bar:hover{filter:brightness(1.1)}
+.chart-labels{display:flex;gap:6px;padding:4px 12px 0;margin-top:2px}
+.chart-label{flex:1;text-align:center;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+
+/* ── DASHBOARD ACTIVITY LOG ── */
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+
+/* ── ALERT STRIP ── */
+.alert-strip{
+  background:#FFF7ED;border:1px solid #FED7AA;border-radius:var(--radius-sm);
+  padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px;color:#92400E;
+}
+.alert-strip svg{width:16px;height:16px;flex-shrink:0;color:#EA580C}
+.alert-strip.red{background:#FEF2F2;border-color:#FECACA;color:#991B1B}
+.alert-strip.red svg{color:var(--red)}
+
+/* ── ARIZA FORM ── */
+.priority-pills{display:flex;gap:8px;flex-wrap:wrap}
+.priority-pill{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;background:var(--surface2);color:var(--text2)}
+.priority-pill.selected-low{background:#DCFCE7;border-color:#16A34A;color:#15803D}
+.priority-pill.selected-med{background:#FEF3C7;border-color:#EA580C;color:#B45309}
+.priority-pill.selected-high{background:#FEE2E2;border-color:var(--red);color:#B91C1C}
+
+/* SCROLL */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── TOOLTIP ── */
+.tippy{position:relative}.tippy:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:11px;padding:4px 8px;border-radius:4px;white-space:nowrap;z-index:20;pointer-events:none}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.page.active{animation:fadeIn .2s ease}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{width:60px}.logo-text,.logo-sub,.nav-group-label,.nav-item span,.user-name,.user-role{display:none}
+  .nav-item{padding:12px;justify-content:center}.nav-badge{display:none}
+  .kpi-grid{grid-template-columns:1fr 1fr}.grid-2,.grid-3{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
-<div class="wrap">
 
-  <!-- LOGO -->
-  <div class="logo">
-    <span class="logo-edu">edu</span><span class="logo-fix">fix</span>
+<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text"><span class="logo-edu">edu</span><span class="logo-fix">fix</span></div>
+    <div class="logo-sub">EKİPMAN YÖNETİM SİSTEMİ</div>
   </div>
-
-  <!-- BADGE -->
-  <div class="badge">
-    <span class="badge-dot"></span>
-    SİSTEM BAKIMDA
-  </div>
-
-  <!-- MACHINES SCENE -->
-  <div class="scene">
-    <svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-
-      <!-- ground -->
-      <rect x="0" y="188" width="760" height="12" rx="3" fill="#1a2535"/>
-      <rect x="0"   y="188" width="70"  height="4" rx="2" fill="#E24B4A" opacity=".4"/>
-      <rect x="140" y="188" width="90"  height="4" rx="2" fill="#E24B4A" opacity=".4"/>
-      <rect x="340" y="188" width="130" height="4" rx="2" fill="#E24B4A" opacity=".4"/>
-      <rect x="600" y="188" width="160" height="4" rx="2" fill="#E24B4A" opacity=".4"/>
-
-      <!-- ── EXCAVATOR (left) ── -->
-      <g transform="translate(50,188) scale(1,-1)">
-        <!-- tracks -->
-        <rect x="0"  y="0"  width="16" height="12" rx="2" fill="#152a43"/>
-        <rect x="60" y="0"  width="16" height="12" rx="2" fill="#152a43"/>
-        <circle cx="8"  cy="12" r="9" fill="#0d1a2e" stroke="#2a4a6e" stroke-width="2.5"/>
-        <circle cx="8"  cy="12" r="3" fill="#2a4a6e"/>
-        <circle cx="68" cy="12" r="9" fill="#0d1a2e" stroke="#2a4a6e" stroke-width="2.5"/>
-        <circle cx="68" cy="12" r="3" fill="#2a4a6e"/>
-        <!-- body -->
-        <rect x="4"  y="12" width="68" height="22" rx="3" fill="#1f3a5c"/>
-        <!-- cab -->
-        <rect x="12" y="22" width="30" height="18" rx="2" fill="#0f2540"/>
-        <rect x="14" y="24" width="14" height="10" rx="1" fill="#1a3a5e" opacity=".85"/>
-        <rect x="30" y="25" width="8"  height="8"  rx="1" fill="#1a3a5e" opacity=".55"/>
-        <!-- warning light -->
-        <circle cx="38" cy="42" r="4" style="animation:blinkLight 1.4s infinite"/>
-        <!-- arm group -->
-        <g style="transform-origin:72px 34px; animation:digArm 2.6s ease-in-out infinite">
-          <rect x="58" y="28" width="40" height="8" rx="4" fill="#2563a8" transform="rotate(-18,58,32)"/>
-          <rect x="88" y="16" width="32" height="7" rx="3" fill="#1a4a8e" transform="rotate(28,88,20)"/>
-          <!-- bucket -->
-          <polygon points="108,9 124,4 128,18 112,22" fill="#E24B4A" opacity=".9"/>
-          <line x1="112" y1="18" x2="124" y2="6" stroke="#fff" stroke-width=".8" opacity=".3"/>
-        </g>
-      </g>
-
-      <!-- ── DUMP TRUCK (center-left) ── -->
-      <g transform="translate(240,188) scale(1,-1)">
-        <!-- wheels -->
-        <circle cx="18"  cy="14" r="12" fill="#0d1a2e" stroke="#2a4a6e" stroke-width="2"/>
-        <circle cx="18"  cy="14" r="4"  fill="#2a4a6e"/>
-        <circle cx="82"  cy="14" r="12" fill="#0d1a2e" stroke="#2a4a6e" stroke-width="2"/>
-        <circle cx="82"  cy="14" r="4"  fill="#2a4a6e"/>
-        <!-- body lower -->
-        <rect x="6"  y="14" width="90" height="18" rx="2" fill="#1f3a5c"/>
-        <!-- bed (tilted slightly) -->
-        <polygon points="10,32 90,32 84,58 4,58" fill="#152a43"/>
-        <line x1="25" y1="32" x2="22" y2="58" stroke="#0d1a2e" stroke-width="1" opacity=".4"/>
-        <line x1="50" y1="32" x2="47" y2="58" stroke="#0d1a2e" stroke-width="1" opacity=".4"/>
-        <line x1="72" y1="32" x2="70" y2="58" stroke="#0d1a2e" stroke-width="1" opacity=".4"/>
-        <!-- cab -->
-        <rect x="62" y="32" width="34" height="28" rx="3" fill="#0f2540"/>
-        <rect x="64" y="34" width="16" height="14" rx="1" fill="#1a3a5e" opacity=".8"/>
-        <rect x="82" y="36" width="10" height="10" rx="1" fill="#1a3a5e" opacity=".55"/>
-        <!-- headlights -->
-        <rect x="93" y="14" width="5" height="6" rx="1" fill="#ffd080" opacity=".7"/>
-        <circle cx="96" cy="34" r="3" style="animation:blinkLight 1.9s infinite"/>
-      </g>
-
-      <!-- ── TOWER CRANE (right) ── -->
-      <g transform="translate(550,188) scale(1,-1)">
-        <!-- base -->
-        <rect x="22" y="0"  width="14" height="10" rx="1" fill="#152540"/>
-        <rect x="0"  y="0"  width="58" height="8"  rx="2" fill="#0f2540"/>
-        <!-- mast -->
-        <rect x="26" y="8"  width="6"  height="150" rx="2" fill="#1a2e4a"/>
-        <!-- cross beam -->
-        <rect x="4"  y="148" width="100" height="6" rx="2" fill="#152a43"/>
-        <!-- counter weight -->
-        <rect x="2"  y="142" width="18"  height="14" rx="2" fill="#0f2540"/>
-        <!-- trolley + rope + hook -->
-        <g style="transform-origin:80px 154px; animation:pendulum 3.2s ease-in-out infinite">
-          <rect x="72" y="148" width="12" height="8" rx="2" fill="#1a2e4a"/>
-          <line x1="78" y1="156" x2="78" y2="115" stroke="#2a4a6e" stroke-width="1.5"/>
-          <!-- hook block -->
-          <rect x="70" y="112" width="16" height="20" rx="2" fill="#E24B4A" opacity=".88"/>
-          <line x1="74" y1="112" x2="74" y2="132" stroke="#fff" stroke-width=".6" opacity=".2"/>
-        </g>
-        <!-- warning light on top -->
-        <circle cx="29" cy="158" r="5" style="animation:blinkLight 1.2s infinite"/>
-        <!-- cab on mast -->
-        <rect x="14" y="108" width="30" height="20" rx="2" fill="#0f2540"/>
-        <rect x="16" y="110" width="12" height="10" rx="1" fill="#1a3a5e" opacity=".75"/>
-      </g>
-
-      <!-- ── MINI COMPACTOR (far right) ── -->
-      <g transform="translate(690,188) scale(1,-1)">
-        <rect x="0"  y="0"  width="52" height="12" rx="6" fill="#152a43"/>
-        <rect x="8"  y="12" width="36" height="20" rx="2" fill="#1f3a5c"/>
-        <rect x="12" y="20" width="18" height="14" rx="2" fill="#0f2540"/>
-        <rect x="14" y="22" width="10" height="8"  rx="1" fill="#1a3a5e" opacity=".8"/>
-        <rect x="32" y="14" width="8"  height="20" rx="1" fill="#152a43"/>
-        <rect x="30" y="32" width="12" height="8"  rx="1" fill="#1a4070"/>
-        <circle cx="26" cy="34" r="3" style="animation:blinkLight 1.6s infinite"/>
-      </g>
-
-      <!-- ── floating mini crane (top center) ── -->
-      <g style="animation:floatY 4s ease-in-out infinite">
-        <g transform="translate(360,20)">
-          <rect x="14" y="0"  width="4"  height="65" rx="1.5" fill="#1a2e4a" opacity=".7"/>
-          <rect x="2"  y="58" width="46" height="4"  rx="1.5" fill="#152a43" opacity=".7"/>
-          <rect x="2"  y="52" width="10" height="10" rx="1"   fill="#0f2540" opacity=".7"/>
-          <line x1="16" y1="62" x2="36" y2="62" stroke="#2a4a6e" stroke-width="1" opacity=".5"/>
-          <line x1="36" y1="62" x2="36" y2="75" stroke="#2a4a6e" stroke-width="1" opacity=".5"/>
-          <rect x="30" y="72" width="12" height="9"  rx="1"   fill="#E24B4A" opacity=".6"/>
-        </g>
-      </g>
-
-      <!-- ambient dust clouds -->
-      <ellipse cx="115" cy="182" rx="28" ry="7" fill="#8b9cbf" opacity=".07"/>
-      <ellipse cx="230" cy="183" rx="18" ry="5" fill="#8b9cbf" opacity=".06"/>
-      <ellipse cx="480" cy="182" rx="24" ry="6" fill="#8b9cbf" opacity=".07"/>
-
-      <!-- corner indicator lights -->
-      <circle cx="700" cy="22" r="3" fill="#E24B4A" opacity=".35" style="animation:pulse 1.8s infinite"/>
-      <circle cx="718" cy="40" r="2" fill="#8b9cbf" opacity=".28" style="animation:pulse 2.3s infinite"/>
-      <circle cx="42"  cy="50" r="2.5" fill="#E24B4A" opacity=".3" style="animation:pulse 1.6s infinite"/>
-    </svg>
-  </div>
-
-  <!-- HEADING -->
-  <h1>Kısa Süreliğine Durduk,<br><span>Daha İyi Döneceğiz</span></h1>
-
-  <p class="sub">
-    Edufix İş Makinesi ve Ekipman Verimlilik Sistemimizi 
-    Akdeniz Üniversitesi öğrencileri ve mezunlarına daha iyi 
-    hizmet verebilmesi için güncelliyoruz. Bütün Özellikler güncellenen 
-    arayüzle en yakın zamanda yayında olacaktır.
-  </p>
-
-  <!-- PROGRESS -->
-  <div class="progress-area">
-    <div class="progress-labels">
-      <span>GÜNCELLEME İLERLEMESİ</span>
-      <span id="pct">72%</span>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Ana Menü</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
     </div>
-    <div class="progress-track">
-      <div class="progress-fill"></div>
+    <div class="nav-group-label">Modüller</div>
+    <div class="nav-item" onclick="showPage('envanter',this)">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <span>Ekipman Envanteri</span>
+    </div>
+    <div class="nav-item" onclick="showPage('calisma',this)">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
+      <span>Çalışma Saatleri</span>
+    </div>
+    <div class="nav-item" onclick="showPage('yakit',this)">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+      <span>Yakıt Takibi</span>
+    </div>
+    <div class="nav-item" onclick="showPage('bakim',this)">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span>Bakım Yönetimi</span>
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('ariza',this)">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <span>Arıza Kayıtları</span>
+      <span class="nav-badge">7</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar">AK</div>
+      <div><div class="user-name">Arif Akçal</div><div class="user-role">Şantiye Yöneticisi</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="page-title" id="page-title">Dashboard</div>
+        <div class="breadcrumb" id="page-breadcrumb">EduFix / Genel Bakış</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="notif-btn" onclick="alert('3 bakım bildirimi, 7 arıza kaydı mevcut.')"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg><span class="notif-dot"></span></div>
+      <button class="btn btn-primary" onclick="openModal('modal-ekipman')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        Yeni Ekipman
+      </button>
     </div>
   </div>
 
-  <!-- INFO CARDS -->
-  <div class="cards">
-    <div class="card">
-      <div class="card-label">Tahmini Süre</div>
-      <div class="card-val">~2 Saat</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Başlangıç</div>
-      <div class="card-val" id="start-time">02:00</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Versiyon</div>
-      <div class="card-val">v2.1.0</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Durum</div>
-      <div class="card-val" style="color:var(--red)">Aktif</div>
-    </div>
-  </div>
+  <div class="content">
 
-  <!-- COUNTDOWN -->
-  <div class="countdown-row">
-    <div class="countdown-unit">
-      <span class="countdown-num" id="cd-h">01</span>
-      <span class="countdown-label">Saat</span>
-    </div>
-    <span class="countdown-sep">:</span>
-    <div class="countdown-unit">
-      <span class="countdown-num" id="cd-m">47</span>
-      <span class="countdown-label">Dakika</span>
-    </div>
-    <span class="countdown-sep">:</span>
-    <div class="countdown-unit">
-      <span class="countdown-num" id="cd-s">30</span>
-      <span class="countdown-label">Saniye</span>
-    </div>
-  </div>
+    <!-- ════════════ DASHBOARD ════════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">TOPLAM EKİPMAN</span>
+            <div class="kpi-icon" style="background:#EFF6FF"><svg fill="none" viewBox="0 0 24 24" stroke="#2563EB" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M16 8h5l2 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+          </div>
+          <div class="kpi-value">42</div>
+          <div class="kpi-sub"><span class="up">↑ 3</span> bu ay eklendi</div>
+          <div class="kpi-chart-bar"><div class="kpi-chart-fill" style="width:72%;background:#2563EB"></div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">AKTİF EKİPMAN</span>
+            <div class="kpi-icon" style="background:#F0FDF4"><svg fill="none" viewBox="0 0 24 24" stroke="#16A34A" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+          </div>
+          <div class="kpi-value">35</div>
+          <div class="kpi-sub">Kullanım oranı <span class="up">%83</span></div>
+          <div class="kpi-chart-bar"><div class="kpi-chart-fill" style="width:83%;background:#16A34A"></div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">AÇIK ARIZALAR</span>
+            <div class="kpi-icon" style="background:#FEF2F2"><svg fill="none" viewBox="0 0 24 24" stroke="#E03333" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div>
+          </div>
+          <div class="kpi-value">7</div>
+          <div class="kpi-sub"><span class="down">2 acil</span> müdahale bekliyor</div>
+          <div class="kpi-chart-bar"><div class="kpi-chart-fill" style="width:17%;background:var(--red)"></div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">AYLIK YAKIT GİDERİ</span>
+            <div class="kpi-icon" style="background:#FFF7ED"><svg fill="none" viewBox="0 0 24 24" stroke="#EA580C" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+          </div>
+          <div class="kpi-value">68k</div>
+          <div class="kpi-sub"><span class="down">↑ %12</span> vs geçen ay</div>
+          <div class="kpi-chart-bar"><div class="kpi-chart-fill" style="width:58%;background:var(--orange)"></div></div>
+        </div>
+      </div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    &copy; 2026 Edufix &nbsp;·&nbsp;
-    <a href="mailto:destek@edufix.com">destek@edufix.com</a>
-    &nbsp;·&nbsp; Anlık durum için sayfayı yenileyin
-  </div>
+      <div class="alert-strip">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        <span><strong>3 ekipman</strong> planlı bakım eşiğine ulaştı. <a href="#" onclick="showPage('bakim',document.querySelector('[onclick*=bakim]'));return false" style="color:inherit;font-weight:600;text-decoration:underline">Bakım modülüne git →</a></span>
+      </div>
 
+      <div class="grid-2">
+        <!-- Haftalık Yakıt Tüketimi -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Haftalık Yakıt Tüketimi (Litre)</span>
+            <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">Son 7 gün</span>
+          </div>
+          <div class="card-body" style="padding-bottom:6px">
+            <div class="chart-placeholder" id="yakit-chart"></div>
+            <div class="chart-labels" id="yakit-labels"></div>
+          </div>
+        </div>
+        <!-- Çalışma Saati Dağılımı -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Ekipman Durumu Dağılımı</span>
+          </div>
+          <div class="card-body">
+            <div class="prog-row"><div class="prog-header"><span class="prog-label">Aktif Çalışıyor</span><span class="prog-val">35 / 42</span></div><div class="prog-track"><div class="prog-fill" style="width:83%;background:var(--green)"></div></div></div>
+            <div class="prog-row"><div class="prog-header"><span class="prog-label">Bakımda</span><span class="prog-val">3 / 42</span></div><div class="prog-track"><div class="prog-fill" style="width:7%;background:var(--orange)"></div></div></div>
+            <div class="prog-row"><div class="prog-header"><span class="prog-label">Arızalı</span><span class="prog-val">4 / 42</span></div><div class="prog-track"><div class="prog-fill" style="width:10%;background:var(--red)"></div></div></div>
+            <div class="prog-row" style="margin-bottom:0"><div class="prog-header"><span class="prog-label">Boşta</span><span class="prog-val">0 / 42</span></div><div class="prog-track"><div class="prog-fill" style="width:0%;background:var(--text3)"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Son Aktiviteler -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Son Aktiviteler</span></div>
+        <div class="card-body" style="padding:0 18px">
+          <div class="timeline">
+            <div class="tl-item"><div class="tl-dot" style="background:#FEF2F2"><svg fill="none" viewBox="0 0 24 24" stroke="#E03333" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div><div class="tl-content"><div class="tl-title">Ekskavatör EX-07 – Arıza Bildirimi</div><div class="tl-desc">Hidrolik pompa basınç düşüklüğü tespit edildi</div><div class="tl-time">Bugün, 14:32</div></div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:#FEF3C7"><svg fill="none" viewBox="0 0 24 24" stroke="#EA580C" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="tl-content"><div class="tl-title">Vinç VN-03 – Bakım Zamanı</div><div class="tl-desc">500 saat eşiği aşıldı, filtre değişimi gerekli</div><div class="tl-time">Bugün, 11:15</div></div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:#EFF6FF"><svg fill="none" viewBox="0 0 24 24" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg></div><div class="tl-content"><div class="tl-title">Dozer DZ-02 – Vardiya Kapandı</div><div class="tl-desc">Operatör: Mehmet Demir | 8.5 saat çalışma</div><div class="tl-time">Dün, 17:00</div></div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:#F0FDF4"><svg fill="none" viewBox="0 0 24 24" stroke="#16A34A" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="tl-content"><div class="tl-title">Kompaktör KP-01 – Arıza Giderildi</div><div class="tl-desc">Motor filtresi değiştirildi, ekipman aktif duruma alındı</div><div class="tl-time">Dün, 09:20</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ MODÜL 1: ENVANTER ════════════ -->
+    <div class="page" id="page-envanter">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">TOPLAM EKİPMAN</span><div class="kpi-icon" style="background:#EFF6FF"><svg fill="none" viewBox="0 0 24 24" stroke="#2563EB" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h5l2 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div></div><div class="kpi-value">42</div><div class="kpi-sub">7 farklı kategori</div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">AKTİF</span><div class="kpi-icon" style="background:#F0FDF4"><svg fill="none" viewBox="0 0 24 24" stroke="#16A34A" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div></div><div class="kpi-value">35</div><div class="kpi-sub"><span class="up">%83</span> kullanım</div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">BAKIMDA</span><div class="kpi-icon" style="background:#FEF3C7"><svg fill="none" viewBox="0 0 24 24" stroke="#EA580C" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg></div></div><div class="kpi-value">3</div><div class="kpi-sub">Planlı bakım</div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">ARIZALI</span><div class="kpi-icon" style="background:#FEF2F2"><svg fill="none" viewBox="0 0 24 24" stroke="#E03333" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div></div><div class="kpi-value">4</div><div class="kpi-sub"><span class="down">Müdahale gerekli</span></div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-toolbar">
+          <input class="search-input" type="text" placeholder="Ekipman ara..." oninput="filterTable(this,'tbl-envanter',0)"/>
+          <select class="filter-select" onchange="filterTableByStatus(this,'tbl-envanter',5)">
+            <option value="">Tüm Durumlar</option>
+            <option value="Aktif">Aktif</option>
+            <option value="Bakımda">Bakımda</option>
+            <option value="Arızalı">Arızalı</option>
+          </select>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="openModal('modal-ekipman')">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Ekipman Ekle
+            </button>
+          </div>
+        </div>
+        <table id="tbl-envanter">
+          <thead><tr><th>Kod</th><th>Ekipman Adı</th><th>Marka / Model</th><th>Yıl</th><th>Operatör</th><th>Durum</th><th>Toplam Saat</th><th>İşlemler</th></tr></thead>
+          <tbody>
+            <tr><td class="td-mono td-bold">EX-01</td><td class="td-bold">Ekskavatör</td><td>Caterpillar 320D</td><td>2019</td><td>Mehmet Demir</td><td><span class="badge badge-green">Aktif</span></td><td class="td-mono">4.280 h</td><td><div class="row-actions"><button class="action-btn tippy" data-tip="Detay" onclick="openModal('modal-detay')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="action-btn tippy" data-tip="Düzenle"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div></td></tr>
+            <tr><td class="td-mono td-bold">EX-02</td><td class="td-bold">Ekskavatör</td><td>Komatsu PC210</td><td>2020</td><td>Ali Yılmaz</td><td><span class="badge badge-green">Aktif</span></td><td class="td-mono">3.150 h</td><td><div class="row-actions"><button class="action-btn" onclick="openModal('modal-detay')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div></td></tr>
+            <tr><td class="td-mono td-bold">VN-01</td><td class="td-bold">Kule Vinci</td><td>Liebherr 120 K.1</td><td>2018</td><td>Hasan Kaya</td><td><span class="badge badge-green">Aktif</span></td><td class="td-mono">6.720 h</td><td><div class="row-actions"><button class="action-btn" onclick="openModal('modal-detay')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div></td></tr>
+            <tr><td class="td-mono td-bold">VN-03</td><td class="td-bold">Kule Vinci</td><td>Potain MDT 389</td><td>2021</td><td>Kadir Şahin</td><td><span class="badge badge-orange">Bakımda</span></td><td class="td-mono">1.890 h</td><td><div class="row-actions"><button class="action-btn" onclick="openModal('modal-detay')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div></td></tr>
+            <tr><td class="td-mono td-bold">DZ-02</td><td class="td-bold">Dozer</td><td>Komatsu D65EX</td><td>2017</td><td>Mehmet Demir</td><td><span class="badge badge-green">Aktif</span></td><td class="td-mono">8.340 h</td><td><div class="row-actions"><button class="action-btn" onclick="openModal('modal-detay')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div></td></tr>
+            <tr><td class="td-mono td-bold">EX-07</td><td class="td-bold">Ekskavatör</td><td>Hitachi ZX200</td><td>2022</td><td>Burak Arslan</td><td><span class="badge badge-red">Arızalı</span></td><td class="td-mono">980 h</td><td><div class="row-actions"><button class="action-btn" onclick="openModal('modal-detay')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div></td></tr>
+            <tr><td class="td-mono td-bold">KP-01</td><td class="td-bold">Kompaktör</td><td>Bomag BW 213 D</td><td>2020</td><td>Serkan Öz</td><td><span class="badge badge-green">Aktif</span></td><td class="td-mono">2.460 h</td><td><div class="row-actions"><button class="action-btn" onclick="openModal('modal-detay')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div></td></tr>
+            <tr><td class="td-mono td-bold">BM-04</td><td class="td-bold">Beton Mikseri</td><td>Schwing Stetter</td><td>2021</td><td>Fatih Çelik</td><td><span class="badge badge-green">Aktif</span></td><td class="td-mono">1.120 h</td><td><div class="row-actions"><button class="action-btn" onclick="openModal('modal-detay')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════ MODÜL 2: ÇALIŞMA SAATLERİ ════════════ -->
+    <div class="page" id="page-calisma">
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">BUGÜNKÜ TOPLAM ÇALIŞMA</span><div class="kpi-icon" style="background:#EFF6FF"><svg fill="none" viewBox="0 0 24 24" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg></div></div><div class="kpi-value">284 h</div><div class="kpi-sub">35 aktif ekipman × ort. 8.1 h</div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">BOŞTA KALMA SÜRESİ</span><div class="kpi-icon" style="background:#FEF2F2"><svg fill="none" viewBox="0 0 24 24" stroke="#E03333" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6"/></svg></div></div><div class="kpi-value">12 h</div><div class="kpi-sub">Oran: <span class="down">%4.2</span> (hedef: <%5)</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-toolbar">
+          <input class="search-input" type="text" placeholder="Ekipman veya operatör ara..." oninput="filterTable(this,'tbl-calisma',0)"/>
+          <input type="date" class="filter-select" value="2026-05-04"/>
+          <div style="margin-left:auto">
+            <button class="btn btn-primary" onclick="openModal('modal-vardiya')">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Vardiya Girişi
+            </button>
+          </div>
+        </div>
+        <table id="tbl-calisma">
+          <thead><tr><th>Ekipman</th><th>Operatör</th><th>Açılış Saati</th><th>Kapanış Saati</th><th>Net Süre</th><th>Hedef</th><th>Verimlilik</th><th>İşlemler</th></tr></thead>
+          <tbody>
+            <tr><td class="td-bold">EX-01 – Ekskavatör</td><td>Mehmet Demir</td><td class="td-mono">07:00 (4.280)</td><td class="td-mono">17:30 (4.290)</td><td class="td-mono td-bold">10.5 h</td><td class="td-mono">9 h</td><td><span class="badge badge-green">%116</span></td><td><div class="row-actions"><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></div></td></tr>
+            <tr><td class="td-bold">EX-02 – Ekskavatör</td><td>Ali Yılmaz</td><td class="td-mono">07:00 (3.150)</td><td class="td-mono">16:00 (3.159)</td><td class="td-mono td-bold">9 h</td><td class="td-mono">9 h</td><td><span class="badge badge-green">%100</span></td><td><div class="row-actions"><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></div></td></tr>
+            <tr><td class="td-bold">VN-01 – Kule Vinci</td><td>Hasan Kaya</td><td class="td-mono">08:00 (6.720)</td><td class="td-mono">17:00 (6.729)</td><td class="td-mono td-bold">9 h</td><td class="td-mono">9 h</td><td><span class="badge badge-green">%100</span></td><td><div class="row-actions"><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></div></td></tr>
+            <tr><td class="td-bold">DZ-02 – Dozer</td><td>Mehmet Demir</td><td class="td-mono">07:30 (8.340)</td><td class="td-mono">14:00 (8.347)</td><td class="td-mono td-bold">6.5 h</td><td class="td-mono">9 h</td><td><span class="badge badge-orange">%72</span></td><td><div class="row-actions"><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></div></td></tr>
+            <tr><td class="td-bold">KP-01 – Kompaktör</td><td>Serkan Öz</td><td class="td-mono">08:00 (2.460)</td><td class="td-mono">17:00 (2.469)</td><td class="td-mono td-bold">9 h</td><td class="td-mono">9 h</td><td><span class="badge badge-green">%100</span></td><td><div class="row-actions"><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></div></td></tr>
+            <tr><td class="td-bold">BM-04 – Beton Mikseri</td><td>Fatih Çelik</td><td class="td-mono">06:00 (1.120)</td><td class="td-mono">15:00 (1.129)</td><td class="td-mono td-bold">9 h</td><td class="td-mono">9 h</td><td><span class="badge badge-green">%100</span></td><td><div class="row-actions"><button class="action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════ MODÜL 3: YAKIT TAKİBİ ════════════ -->
+    <div class="page" id="page-yakit">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">AYLIK TOPLAM</span><div class="kpi-icon" style="background:#FFF7ED"><svg fill="none" viewBox="0 0 24 24" stroke="#EA580C" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div></div><div class="kpi-value">18.4k L</div><div class="kpi-sub">35 ekipman, Mayıs 2026</div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">TOPLAM MALİYET</span><div class="kpi-icon" style="background:#F0FDF4"><svg fill="none" viewBox="0 0 24 24" stroke="#16A34A" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div></div><div class="kpi-value">68k ₺</div><div class="kpi-sub">3.70 ₺/L birim fiyat</div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">EŞIK AŞAN</span><div class="kpi-icon" style="background:#FEF2F2"><svg fill="none" viewBox="0 0 24 24" stroke="#E03333" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div></div><div class="kpi-value">2</div><div class="kpi-sub"><span class="down">Referans üzeri tüketim</span></div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">ORT. L/SAAT</span><div class="kpi-icon" style="background:#EDE9FE"><svg fill="none" viewBox="0 0 24 24" stroke="#7C3AED" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div></div><div class="kpi-value">16.2</div><div class="kpi-sub">L/saat ortalama</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-toolbar">
+          <input class="search-input" type="text" placeholder="Ekipman ara..." oninput="filterTable(this,'tbl-yakit',0)"/>
+          <select class="filter-select">
+            <option>Tüm Ekipmanlar</option><option>Ekskavatör</option><option>Vinç</option><option>Dozer</option>
+          </select>
+          <div style="margin-left:auto">
+            <button class="btn btn-primary" onclick="openModal('modal-yakit')">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              İkmal Girişi
+            </button>
+          </div>
+        </div>
+        <table id="tbl-yakit">
+          <thead><tr><th>Ekipman</th><th>Son İkmal Tarihi</th><th>Miktar (L)</th><th>Toplam Maliyet</th><th>Ref. Tüketim</th><th>Gerçek L/h</th><th>Durum</th></tr></thead>
+          <tbody>
+            <tr><td class="td-bold">EX-01 – Ekskavatör</td><td class="td-mono">04.05.2026</td><td class="td-mono">180 L</td><td class="td-mono">666 ₺</td><td class="td-mono">16-20 L/h</td><td class="td-mono">17.1 L/h</td><td><span class="badge badge-green">Normal</span></td></tr>
+            <tr><td class="td-bold">EX-02 – Ekskavatör</td><td class="td-mono">03.05.2026</td><td class="td-mono">162 L</td><td class="td-mono">599 ₺</td><td class="td-mono">16-20 L/h</td><td class="td-mono">18.0 L/h</td><td><span class="badge badge-green">Normal</span></td></tr>
+            <tr><td class="td-bold">VN-01 – Kule Vinci</td><td class="td-mono">04.05.2026</td><td class="td-mono">95 L</td><td class="td-mono">351 ₺</td><td class="td-mono">8-12 L/h</td><td class="td-mono">10.6 L/h</td><td><span class="badge badge-green">Normal</span></td></tr>
+            <tr><td class="td-bold">DZ-02 – Dozer</td><td class="td-mono">02.05.2026</td><td class="td-mono">260 L</td><td class="td-mono">962 ₺</td><td class="td-mono">20-26 L/h</td><td class="td-mono">30.4 L/h</td><td><span class="badge badge-red">⚠ Eşik Aşıldı</span></td></tr>
+            <tr><td class="td-bold">KP-01 – Kompaktör</td><td class="td-mono">04.05.2026</td><td class="td-mono">108 L</td><td class="td-mono">400 ₺</td><td class="td-mono">10-14 L/h</td><td class="td-mono">12.0 L/h</td><td><span class="badge badge-green">Normal</span></td></tr>
+            <tr><td class="td-bold">BM-04 – Beton Mikseri</td><td class="td-mono">03.05.2026</td><td class="td-mono">135 L</td><td class="td-mono">500 ₺</td><td class="td-mono">12-16 L/h</td><td class="td-mono">22.0 L/h</td><td><span class="badge badge-red">⚠ Eşik Aşıldı</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════ MODÜL 4: BAKIM YÖNETİMİ ════════════ -->
+    <div class="page" id="page-bakim">
+      <div class="alert-strip">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        <span><strong>3 ekipman</strong> bakım eşiğine ulaştı — ilgili teknikere otomatik bildirim gönderildi.</span>
+      </div>
+      <div class="table-card">
+        <div class="table-toolbar">
+          <input class="search-input" type="text" placeholder="Ekipman ara..." oninput="filterTable(this,'tbl-bakim',0)"/>
+          <select class="filter-select">
+            <option>Tüm Bakımlar</option><option>Yağ Değişimi</option><option>Filtre</option><option>Hidrolik</option>
+          </select>
+          <div style="margin-left:auto">
+            <button class="btn btn-primary" onclick="openModal('modal-bakim')">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Bakım Planı Ekle
+            </button>
+          </div>
+        </div>
+        <table id="tbl-bakim">
+          <thead><tr><th>Ekipman</th><th>Bakım Türü</th><th>Eşik (Saat)</th><th>Son Bakım</th><th>Sonraki Bakım</th><th>Kalan Saat</th><th>Durum</th><th>İşlem</th></tr></thead>
+          <tbody>
+            <tr><td class="td-bold">VN-03 – Kule Vinci</td><td>Filtre Değişimi</td><td class="td-mono">500 h</td><td class="td-mono">01.03.2026</td><td class="td-mono">1.890 h</td><td class="td-mono" style="color:var(--red);font-weight:700">0 h ⚠</td><td><span class="badge badge-red">Acil</span></td><td><button class="btn btn-primary" style="height:28px;padding:0 10px;font-size:12px" onclick="alert('Bakım kaydedildi.')">Tamamlandı</button></td></tr>
+            <tr><td class="td-bold">DZ-02 – Dozer</td><td>Yağ Değişimi</td><td class="td-mono">250 h</td><td class="td-mono">10.04.2026</td><td class="td-mono">8.340 h</td><td class="td-mono" style="color:var(--orange);font-weight:700">8 h</td><td><span class="badge badge-orange">Yakın</span></td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px" onclick="alert('Bakım planlandı.')">Planla</button></td></tr>
+            <tr><td class="td-bold">EX-01 – Ekskavatör</td><td>Kapsamlı Bakım</td><td class="td-mono">1000 h</td><td class="td-mono">15.01.2026</td><td class="td-mono">4.280 h</td><td class="td-mono" style="color:var(--orange);font-weight:700">20 h</td><td><span class="badge badge-orange">Yakın</span></td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px" onclick="alert('Bakım planlandı.')">Planla</button></td></tr>
+            <tr><td class="td-bold">EX-02 – Ekskavatör</td><td>Yağ Değişimi</td><td class="td-mono">250 h</td><td class="td-mono">01.04.2026</td><td class="td-mono">3.150 h</td><td class="td-mono">90 h</td><td><span class="badge badge-green">Normal</span></td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px">Planla</button></td></tr>
+            <tr><td class="td-bold">KP-01 – Kompaktör</td><td>Palet Değişimi</td><td class="td-mono">500 h</td><td class="td-mono">20.02.2026</td><td class="td-mono">2.460 h</td><td class="td-mono">140 h</td><td><span class="badge badge-green">Normal</span></td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px">Planla</button></td></tr>
+            <tr><td class="td-bold">VN-01 – Kule Vinci</td><td>Hidrolik Bakım</td><td class="td-mono">1000 h</td><td class="td-mono">01.11.2025</td><td class="td-mono">6.720 h</td><td class="td-mono">280 h</td><td><span class="badge badge-green">Normal</span></td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px">Planla</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════ MODÜL 5: ARIZA KAYITLARI ════════════ -->
+    <div class="page" id="page-ariza">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">AÇIK ARIZALAR</span><div class="kpi-icon" style="background:#FEF2F2"><svg fill="none" viewBox="0 0 24 24" stroke="#E03333" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div></div><div class="kpi-value">7</div><div class="kpi-sub"><span class="down">2 acil öncelikli</span></div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">BU AY KAPANAN</span><div class="kpi-icon" style="background:#F0FDF4"><svg fill="none" viewBox="0 0 24 24" stroke="#16A34A" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div></div><div class="kpi-value">23</div><div class="kpi-sub">Ort. çözüm: <span>4.2 saat</span></div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">TAMIR MALİYETİ</span><div class="kpi-icon" style="background:#EDE9FE"><svg fill="none" viewBox="0 0 24 24" stroke="#7C3AED" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V7m0 1v8m0 0v1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div></div><div class="kpi-value">14.2k ₺</div><div class="kpi-sub">Bu ay toplam</div></div>
+        <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">EN SIK ARIZA</span><div class="kpi-icon" style="background:#FEF3C7"><svg fill="none" viewBox="0 0 24 24" stroke="#EA580C" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div></div><div class="kpi-value">Hidrolik</div><div class="kpi-sub">8 kayıt bu ay</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-toolbar">
+          <input class="search-input" type="text" placeholder="Arıza veya ekipman ara..." oninput="filterTable(this,'tbl-ariza',0)"/>
+          <select class="filter-select" onchange="filterTableByStatus(this,'tbl-ariza',4)">
+            <option value="">Tüm Durumlar</option>
+            <option value="Açık">Açık</option>
+            <option value="İncelemede">İncelemede</option>
+            <option value="Kapalı">Kapalı</option>
+          </select>
+          <div style="margin-left:auto">
+            <button class="btn btn-primary" onclick="openModal('modal-ariza')">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Arıza Bildir
+            </button>
+          </div>
+        </div>
+        <table id="tbl-ariza">
+          <thead><tr><th>Ekipman</th><th>Arıza Türü</th><th>Bildiren</th><th>Başlangıç</th><th>Durum</th><th>Öncelik</th><th>Süre</th><th>İşlem</th></tr></thead>
+          <tbody>
+            <tr><td class="td-bold">EX-07 – Ekskavatör</td><td>Hidrolik pompa</td><td>Burak Arslan</td><td class="td-mono">04.05.2026 14:32</td><td><span class="badge badge-red">Açık</span></td><td><span class="badge badge-red">Acil</span></td><td class="td-mono">2 saat</td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px" onclick="openModal('modal-ariza-kapat')">Kapat</button></td></tr>
+            <tr><td class="td-bold">BM-04 – Beton Mikseri</td><td>Karıştırıcı motor</td><td>Fatih Çelik</td><td class="td-mono">03.05.2026 09:10</td><td><span class="badge badge-orange">İncelemede</span></td><td><span class="badge badge-red">Acil</span></td><td class="td-mono">29 saat</td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px" onclick="openModal('modal-ariza-kapat')">Kapat</button></td></tr>
+            <tr><td class="td-bold">DZ-02 – Dozer</td><td>Yakıt kaçağı</td><td>Mehmet Demir</td><td class="td-mono">02.05.2026 16:45</td><td><span class="badge badge-orange">İncelemede</span></td><td><span class="badge badge-orange">Orta</span></td><td class="td-mono">45 saat</td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px" onclick="openModal('modal-ariza-kapat')">Kapat</button></td></tr>
+            <tr><td class="td-bold">KP-01 – Kompaktör</td><td>Motor filtresi</td><td>Serkan Öz</td><td class="td-mono">01.05.2026 08:00</td><td><span class="badge badge-green">Kapalı</span></td><td><span class="badge badge-blue">Düşük</span></td><td class="td-mono">1.5 saat</td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px" disabled>Kapalı</button></td></tr>
+            <tr><td class="td-bold">VN-01 – Kule Vinci</td><td>Elektrik arızası</td><td>Hasan Kaya</td><td class="td-mono">30.04.2026 11:20</td><td><span class="badge badge-green">Kapalı</span></td><td><span class="badge badge-orange">Orta</span></td><td class="td-mono">3 saat</td><td><button class="btn" style="height:28px;padding:0 10px;font-size:12px" disabled>Kapalı</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+
+<!-- Modal: Ekipman Ekle -->
+<div class="modal-overlay" id="modal-ekipman">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Yeni Ekipman Ekle</span><button class="modal-close" onclick="closeModal('modal-ekipman')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">Ekipman Kodu *</label><input class="form-input" placeholder="EX-09"/></div><div class="form-group"><label class="form-label">Ekipman Türü *</label><select class="form-select"><option>Ekskavatör</option><option>Vinç</option><option>Dozer</option><option>Kompaktör</option><option>Beton Mikseri</option><option>Greyder</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Marka</label><input class="form-input" placeholder="Caterpillar"/></div><div class="form-group"><label class="form-label">Model</label><input class="form-input" placeholder="320D"/></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Üretim Yılı</label><input class="form-input" type="number" placeholder="2022"/></div><div class="form-group"><label class="form-label">Şasi No</label><input class="form-input" placeholder="CAT320D..."/></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Operatör</label><select class="form-select"><option>-- Seçin --</option><option>Mehmet Demir</option><option>Ali Yılmaz</option><option>Hasan Kaya</option><option>Burak Arslan</option><option>Serkan Öz</option></select></div><div class="form-group"><label class="form-label">Giriş Tarihi</label><input class="form-input" type="date"/></div></div>
+      <div class="form-row full"><div class="form-group"><label class="form-label">Notlar</label><textarea class="form-input" placeholder="Ek bilgiler..."></textarea></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-ekipman')">İptal</button><button class="btn btn-primary" onclick="alert('Ekipman kaydedildi!');closeModal('modal-ekipman')">Kaydet</button></div>
+  </div>
+</div>
+
+<!-- Modal: Vardiya Girişi -->
+<div class="modal-overlay" id="modal-vardiya">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Vardiya Saati Girişi</span><button class="modal-close" onclick="closeModal('modal-vardiya')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">Ekipman *</label><select class="form-select"><option>EX-01 – Ekskavatör</option><option>VN-01 – Kule Vinci</option><option>DZ-02 – Dozer</option></select></div><div class="form-group"><label class="form-label">Operatör *</label><select class="form-select"><option>Mehmet Demir</option><option>Ali Yılmaz</option><option>Hasan Kaya</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Açılış Saati (hh:mm)</label><input class="form-input" type="time" value="07:00"/></div><div class="form-group"><label class="form-label">Açılış Sayaç (h)</label><input class="form-input" type="number" placeholder="4280"/></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Kapanış Saati (hh:mm)</label><input class="form-input" type="time" value="17:00"/></div><div class="form-group"><label class="form-label">Kapanış Sayaç (h)</label><input class="form-input" type="number" placeholder="4289"/></div></div>
+      <div class="form-row full"><div class="form-group"><label class="form-label">Notlar</label><textarea class="form-input" placeholder="Vardiya notları..."></textarea></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-vardiya')">İptal</button><button class="btn btn-primary" onclick="alert('Vardiya kaydedildi!');closeModal('modal-vardiya')">Kaydet</button></div>
+  </div>
+</div>
+
+<!-- Modal: Yakıt İkmal -->
+<div class="modal-overlay" id="modal-yakit">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Yakıt İkmal Girişi</span><button class="modal-close" onclick="closeModal('modal-yakit')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">Ekipman *</label><select class="form-select"><option>EX-01 – Ekskavatör</option><option>VN-01 – Kule Vinci</option><option>DZ-02 – Dozer</option></select></div><div class="form-group"><label class="form-label">Tarih *</label><input class="form-input" type="date"/></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Miktar (Litre) *</label><input class="form-input" type="number" placeholder="150"/></div><div class="form-group"><label class="form-label">Birim Fiyat (₺/L)</label><input class="form-input" type="number" step="0.01" placeholder="3.70"/></div></div>
+      <div class="form-row full"><div class="form-group"><label class="form-label">Notlar</label><textarea class="form-input" placeholder="İkmal notları..."></textarea></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-yakit')">İptal</button><button class="btn btn-primary" onclick="alert('İkmal kaydedildi!');closeModal('modal-yakit')">Kaydet</button></div>
+  </div>
+</div>
+
+<!-- Modal: Bakım Planı -->
+<div class="modal-overlay" id="modal-bakim">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Bakım Planı Ekle</span><button class="modal-close" onclick="closeModal('modal-bakim')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">Ekipman *</label><select class="form-select"><option>EX-01 – Ekskavatör</option><option>VN-01 – Kule Vinci</option><option>DZ-02 – Dozer</option></select></div><div class="form-group"><label class="form-label">Bakım Türü *</label><select class="form-select"><option>Yağ Değişimi</option><option>Filtre Değişimi</option><option>Kapsamlı Bakım</option><option>Palet Değişimi</option><option>Hidrolik Bakım</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Eşik (Çalışma Saati)</label><input class="form-input" type="number" placeholder="500"/></div><div class="form-group"><label class="form-label">Son Bakım Tarihi</label><input class="form-input" type="date"/></div></div>
+      <div class="form-row full"><div class="form-group"><label class="form-label">Sorumlu Tekniker</label><input class="form-input" placeholder="Tekniker adı"/></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-bakim')">İptal</button><button class="btn btn-primary" onclick="alert('Bakım planı eklendi!');closeModal('modal-bakim')">Kaydet</button></div>
+  </div>
+</div>
+
+<!-- Modal: Arıza Bildir -->
+<div class="modal-overlay" id="modal-ariza">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Arıza Bildirimi</span><button class="modal-close" onclick="closeModal('modal-ariza')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">Ekipman *</label><select class="form-select"><option>EX-01 – Ekskavatör</option><option>EX-07 – Ekskavatör</option><option>VN-01 – Kule Vinci</option><option>DZ-02 – Dozer</option></select></div><div class="form-group"><label class="form-label">Arıza Türü *</label><select class="form-select"><option>Hidrolik</option><option>Motor</option><option>Elektrik</option><option>Şanzıman</option><option>Yakıt Sistemi</option><option>Diğer</option></select></div></div>
+      <div class="form-row full"><div class="form-group"><label class="form-label">Belirti Açıklaması *</label><textarea class="form-input" placeholder="Arızanın belirtilerini açıklayın..."></textarea></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Öncelik</label>
+        <div class="priority-pills">
+          <div class="priority-pill" onclick="selectPriority(this,'low')">Düşük</div>
+          <div class="priority-pill" onclick="selectPriority(this,'med')">Orta</div>
+          <div class="priority-pill selected-high" onclick="selectPriority(this,'high')">Acil</div>
+        </div>
+      </div><div class="form-group"><label class="form-label">Bildiren *</label><select class="form-select"><option>Mehmet Demir</option><option>Ali Yılmaz</option><option>Burak Arslan</option><option>Serkan Öz</option></select></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-ariza')">İptal</button><button class="btn btn-primary" onclick="alert('Arıza bildirildi!');closeModal('modal-ariza')">Bildir</button></div>
+  </div>
+</div>
+
+<!-- Modal: Arıza Kapat -->
+<div class="modal-overlay" id="modal-ariza-kapat">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Arıza Kaydını Kapat</span><button class="modal-close" onclick="closeModal('modal-ariza-kapat')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">Çözüm Saati</label><input class="form-input" type="datetime-local"/></div><div class="form-group"><label class="form-label">Kullanılan Yedek Parça</label><input class="form-input" placeholder="Parça adı ve kodu"/></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Tamir Maliyeti (₺)</label><input class="form-input" type="number" placeholder="1500"/></div><div class="form-group"><label class="form-label">Müdahale Eden Tekniker</label><input class="form-input" placeholder="Tekniker adı"/></div></div>
+      <div class="form-row full"><div class="form-group"><label class="form-label">Çözüm Açıklaması</label><textarea class="form-input" placeholder="Yapılan işlemler..."></textarea></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-ariza-kapat')">İptal</button><button class="btn btn-primary" onclick="alert('Arıza kaydı kapatıldı!');closeModal('modal-ariza-kapat')">Kaydet ve Kapat</button></div>
+  </div>
+</div>
+
+<!-- Modal: Ekipman Detay -->
+<div class="modal-overlay" id="modal-detay">
+  <div class="modal" style="width:580px">
+    <div class="modal-header"><span class="modal-title">EX-01 – Caterpillar 320D Ekskavatör</span><button class="modal-close" onclick="closeModal('modal-detay')">✕</button></div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-bottom:16px">
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Durum</div><span class="badge badge-green">Aktif</span></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Operatör</div><div style="font-size:13px;font-weight:600">Mehmet Demir</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Şasi No</div><div style="font-size:12px;font-family:'DM Mono',monospace">CAT320D-2019-0042</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Motor Seri No</div><div style="font-size:12px;font-family:'DM Mono',monospace">C7.1-ENG-0091</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Toplam Çalışma</div><div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace">4.280 h</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Bu Ay Yakıt</div><div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace">180 L</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Son Bakım</div><div style="font-size:13px">15.01.2026 – Kapsamlı</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Sonraki Bakım</div><div style="font-size:13px;color:var(--orange);font-weight:600">~20 saat sonra ⚠</div></div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;letter-spacing:.4px;text-transform:uppercase">Toplam Arıza Geçmişi</div>
+      <div style="font-size:13px;color:var(--text2)">Bu ekipman için toplam <strong>3 arıza kaydı</strong> bulunmaktadır. Son arıza: Mayıs 2025 – Hidrolik pompa (kapalı).</div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-detay')">Kapat</button></div>
+  </div>
 </div>
 
 <script>
-  // ── Countdown: 1h 47m 30s from page load ──
-  let total = 1 * 3600 + 47 * 60 + 30;
+// ── PAGE NAV ──
+const pageTitles = {
+  dashboard:  ['Dashboard','EduFix / Genel Bakış'],
+  envanter:   ['Ekipman Envanteri','EduFix / Modül 1 – Envanter'],
+  calisma:    ['Çalışma Saatleri','EduFix / Modül 2 – Çalışma Saatleri'],
+  yakit:      ['Yakıt Takibi','EduFix / Modül 3 – Yakıt Takibi'],
+  bakim:      ['Bakım Yönetimi','EduFix / Modül 4 – Bakım Yönetimi'],
+  ariza:      ['Arıza Kayıtları','EduFix / Modül 5 – Arıza Kayıtları'],
+};
 
-  function pad(n) { return String(n).padStart(2,'0'); }
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  const t = pageTitles[id];
+  document.getElementById('page-title').textContent = t[0];
+  document.getElementById('page-breadcrumb').textContent = t[1];
+}
 
-  function tick() {
-    if (total <= 0) {
-      document.getElementById('cd-h').textContent = '00';
-      document.getElementById('cd-m').textContent = '00';
-      document.getElementById('cd-s').textContent = '00';
-      return;
-    }
-    total--;
-    const h = Math.floor(total / 3600);
-    const m = Math.floor((total % 3600) / 60);
-    const s = total % 60;
-    document.getElementById('cd-h').textContent = pad(h);
-    document.getElementById('cd-m').textContent = pad(m);
-    document.getElementById('cd-s').textContent = pad(s);
-  }
+// ── MODALS ──
+function openModal(id){ document.getElementById(id).classList.add('open') }
+function closeModal(id){ document.getElementById(id).classList.remove('open') }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open') });
+});
 
-  setInterval(tick, 1000);
+// ── TABLE FILTER ──
+function filterTable(inp, tblId, colIdx) {
+  const val = inp.value.toLowerCase();
+  document.querySelectorAll('#'+tblId+' tbody tr').forEach(tr => {
+    const cell = tr.cells[colIdx];
+    tr.style.display = cell && cell.textContent.toLowerCase().includes(val) ? '' : 'none';
+  });
+}
+function filterTableByStatus(sel, tblId, colIdx) {
+  const val = sel.value.toLowerCase();
+  document.querySelectorAll('#'+tblId+' tbody tr').forEach(tr => {
+    const cell = tr.cells[colIdx];
+    tr.style.display = (!val || (cell && cell.textContent.toLowerCase().includes(val))) ? '' : 'none';
+  });
+}
 
-  // ── Show real start time ──
-  const now = new Date();
-  now.setHours(now.getHours() - 1);
-  document.getElementById('start-time').textContent =
-    pad(now.getHours()) + ':' + pad(now.getMinutes());
+// ── PRIORITY PILLS ──
+function selectPriority(el, level) {
+  el.closest('.priority-pills').querySelectorAll('.priority-pill').forEach(p => {
+    p.classList.remove('selected-low','selected-med','selected-high');
+  });
+  el.classList.add('selected-' + level);
+}
+
+// ── CHART: Weekly Fuel ──
+const days = ['28 Nis','29 Nis','30 Nis','1 May','2 May','3 May','4 May'];
+const vals = [420, 380, 510, 490, 560, 430, 395];
+const max = Math.max(...vals);
+const colors = ['#2563EB','#2563EB','#2563EB','#2563EB','#E03333','#2563EB','#2563EB'];
+const chart = document.getElementById('yakit-chart');
+const labels = document.getElementById('yakit-labels');
+days.forEach((d, i) => {
+  const bar = document.createElement('div');
+  bar.className = 'bar';
+  const h = Math.round((vals[i] / max) * 100);
+  bar.style.height = '0%';
+  bar.style.background = colors[i];
+  bar.title = d + ': ' + vals[i] + ' L';
+  chart.appendChild(bar);
+  setTimeout(() => bar.style.height = h + '%', 300 + i * 80);
+
+  const lbl = document.createElement('div');
+  lbl.className = 'chart-label';
+  lbl.textContent = d.split(' ')[0];
+  labels.appendChild(lbl);
+});
 </script>
 </body>
 </html>
